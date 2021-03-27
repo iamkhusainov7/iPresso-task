@@ -1,19 +1,24 @@
 <?php
 
-namespace App\Service\Templates;
+namespace App\Services\Templates;
 
-use App\Entity\User;
+use Symfony\Component\Mailer\MailerInterface;
 
 abstract class EmailSendTemplate
 {
-    public $user;
-    public $subject;
+    public string $userEmail;
+    public string $subject;
+    public MailerInterface $mailer;
 
     abstract function send();
 
-    public function __construct(User $user, $subject)
-    {
-        $this->user = $user;
+    public function __construct(
+        MailerInterface $mailer,
+        string $userEmail,
+        $subject
+    ) {
+        $this->userEmail = $userEmail;
         $this->subject = $subject;
+        $this->mailer = $mailer;
     }
 }

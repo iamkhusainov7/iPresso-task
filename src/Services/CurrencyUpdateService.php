@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Services;
 
 use App\ApiProviders\CurrencySource;
 use App\Entity\Subscription;
@@ -28,7 +28,7 @@ final class CheckCurrencyUpdateService
         $ids = [];
 
         foreach ($subscriptions as $subscription) {
-            $tempKey = $subscription[0]->getCurrency();
+            $tempKey = strtolower($subscription[0]->getCurrency());
 
             if (
                 $rates[$tempKey] >= $subscription[0]->getMin() &&
@@ -36,10 +36,10 @@ final class CheckCurrencyUpdateService
             ) {
                 $ids[] = $subscription[0]->getId();
                 $mustNotify[] = new CurrencyUpdatedListener(
+                    $mailer,
                     $subscription[0],
                     $subscription['email'],
                     $rates[$tempKey],
-                    $mailer
                 );
             }
         };
@@ -59,7 +59,7 @@ final class CheckCurrencyUpdateService
         $result = [];
 
         foreach ($rates as $rate) {
-            $key = $rate['code'];
+            $key = strtolower($rate['code']);
 
             $result[$key] = $rate['mid'];
         }

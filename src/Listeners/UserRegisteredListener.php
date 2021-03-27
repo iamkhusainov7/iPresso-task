@@ -2,7 +2,7 @@
 
 use App\Entity\User;
 use App\Listeres\Contracts\ListenerInterface;
-use Symfony\Component\Mime\Email;
+use App\Services\PlainTextEmailService;
 use Symfony\Component\Mailer\MailerInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
@@ -35,14 +35,16 @@ class UserRegisteredListener implements ListenerInterface
             $this->user->getEmail(),
             ['id' => $this->user->getId()]
         );
+        $message = "<p>Dear user, please confirm your email address by clicking this link: <a href='{$signatureComponents->getSignedUrl()}'>Verify</a></p>";
 
-        $email = (new Email())
-            ->from('no-reply@gmail.com.com')
-            ->to($this->user->getEmail())
-            ->priority(Email::PRIORITY_HIGH)
-            ->subject('Email verification!')
-            ->html("<p>Dear user, please confirm your email address by clicking this link: <a href='{$signatureComponents->getSignedUrl()}'>Verify</a></p>");
 
-        $this->mailer->send($email);
+        $email = new PlainTextEmailService(
+            $this->mailer,
+            $this->user->getEmail(),
+            'Currency update',
+            $message
+        );
+
+        $email->send();
     }
 }

@@ -1,23 +1,39 @@
 <?php
 
-namespace App\Service;
+namespace App\Services;
 
-use App\Entity\User;
-use App\Service\Templates\EmailSendTemplate;
+use App\Services\Templates\EmailSendTemplate;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mailer\MailerInterface;
 
 class PlainTextEmailService extends EmailSendTemplate
 {
-    public $text;
+    public $message;
 
-    public function __construct(User $user, $subject, $text)
-    {
-        parent::__construct($user, $subject);
+    public function __construct(
+        MailerInterface $mailer,
+        string $userEmail,
+        string $subject,
+        string $message
+    ) {
+        parent::__construct(
+            $mailer,
+            $userEmail,
+            $subject
+        );
 
-        $this->text = $text;
+        $this->message = $message;
     }
 
     public function send()
     {
+        $email = (new Email())
+            ->from('no-reply@gmail.com.com')
+            ->to($this->userEmail)
+            ->priority(Email::PRIORITY_HIGH)
+            ->subject('Email verification!')
+            ->html($this->message);
 
+        $this->mailer->send($email);
     }
 }

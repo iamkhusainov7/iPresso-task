@@ -33,7 +33,7 @@ class CurrencyController extends AbstractController
                 'min' => $request->get('min'),
                 'max' => $request->get('max'),
                 'user' => $request->get('user_id'),
-                'currency' => $request->get('currency-name')
+                'currency-name' => $request->get('currency-name')
             ];
 
             $subcribtion = (new Subscription($data))->setUser($user);
