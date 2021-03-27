@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Throwable;
 
@@ -22,9 +23,9 @@ class CurrencyController extends AbstractController
     }
 
     /**
-     * @Route("/currency/create", name="currency_creation")
+     * @Route("/currency/create", name="currency_creation", methods={"POST"})
      */
-    public function create(Request $request, ValidatorInterface $validator)
+    public function create(Request $request, ValidatorInterface $validator, UserInterface $user)
     {
         try {
             $entityManager = $this->getDoctrine()->getManager();
@@ -35,7 +36,7 @@ class CurrencyController extends AbstractController
                 'currency' => $request->get('currency-name')
             ];
 
-            $subcribtion = new Subscription($data);
+            $subcribtion = (new Subscription($data))->setUser($user);
 
             $validation = $validator->validate($subcribtion);
             $errorMessages = [];

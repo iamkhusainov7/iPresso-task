@@ -30,7 +30,7 @@ class UserRegistrationController extends AbstractController
     }
 
     /**
-     * @Route("/auth/user/registration", name="auth_user_registration")
+     * @Route("/auth/user/registration", name="auth_user_registration", methods={"POST"})
      */
     public function register(Request $request, ValidatorInterface $validator)
     {

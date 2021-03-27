@@ -27,15 +27,10 @@ class VerifyEmailController extends AbstractController
     ) {
         $id = $request->get('id'); // retrieve the user id from the url
 
-        // Verify the user id exists and is not null
-        if (null === $id) {
-            return $this->redirectToRoute('app_home');
-        }
-
         $user = $userRepository->find($id);
 
         // Ensure the user exists in persistence
-        if (null === $user) {
+        if (null === $user || null === $id) {
             return $this->json([
                 'message' => 'User does not exist!'
             ]);
