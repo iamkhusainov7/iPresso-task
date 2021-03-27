@@ -3,15 +3,18 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @UniqueEntity("email")
  */
-class User
+class User implements UserInterface
 {
     /**
      * @ORM\Id
@@ -29,7 +32,7 @@ class User
      *     allowEmptyString = false
      * )
      * @Assert\Regex(
-     *  pattern="/\p{L}+$/u",
+     *  pattern="/\p{L}$/u",
      *  match=true,
      *  message="Name can not include any number or special chars"
      * )
@@ -45,7 +48,7 @@ class User
      *     allowEmptyString = false
      * )
      * @Assert\Regex(
-     *  pattern="/\p{L}+$/u",
+     *  pattern="/\p{L}$/u",
      *  match=true,
      *  message="Surname can not include any number or special chars"
      * )
@@ -83,6 +86,21 @@ class User
      */
     private $bday;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $is_confirmed = false;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Subscription", mappedBy="user")
+     */
+    private $subscriptions;
+
+    /**
+     * @ORM\Column(type="string", unique=true, nullable=true)
+     */
+    private $apiToken;
+
     public function __construct(array $data = [])
     {
         $this->name = $data['name'] ?? null;
@@ -90,6 +108,7 @@ class User
         $this->email = $data['email'] ?? null;
         $this->phone_number = $data['phone_number'] ?? null;
         $this->bday = new \DateTime($data['bday']) ?? null;
+        $this->subscriptions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -155,5 +174,97 @@ class User
         $this->bday = $bday;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getSubscriptions(): Collection
+    {
+        return $this->subscriptions;
+    }
+
+    public function addSubscription(Subscription $subscription): self
+    {
+        if (!$this->subscriptions->contains($subscription)) {
+            $this->subscriptions[] = $subscription;
+            $subscription->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSubscription(Subscription $subscription): self
+    {
+        if ($this->subscriptions->removeElement($subscription)) {
+            // set the owning side to null (unless already changed)
+            if ($subscription->getUser() === $this) {
+                $subscription->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getIsConfirmed(): ?bool
+    {
+        return $this->is_confirmed;
+    }
+
+    public function setIsConfirmed(bool $is_confirmed): self
+    {
+        $this->is_confirmed = $is_confirmed;
+
+        return $this;
+    }
+
+    public function getApiToken(): ?string
+    {
+        return $this->apiToken;
+    }
+
+    public function setApiToken(?string $apiToken): self
+    {
+        $this->apiToken = $apiToken;
+
+        return $this;
+    }
+
+    public function getRoles() {
+        return ['ROLE_USER'];
+    }
+
+    public function getPassword() {
+        return null;
+    }
+
+    /**
+     * Returns the salt that was originally used to encode the password.
+     *
+     * This can return null if the password was not encoded using a salt.
+     *
+     * @return string|null The salt
+     */
+    public function getSalt() {
+        return null;
+    }
+
+    /**
+     * Returns the username used to authenticate the user.
+     *
+     * @return string The username
+     */
+    public function getUsername() {
+        return "{$this->name} {$this->surname}"; 
+    }
+
+    /**
+     * Removes sensitive data from the user.
+     *
+     * This is important if, at any given point, sensitive information like
+     * the plain-text password is stored on this object.
+     */
+    public function eraseCredentials() {
+        //
     }
 }

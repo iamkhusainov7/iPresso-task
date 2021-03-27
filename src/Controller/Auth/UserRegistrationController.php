@@ -3,16 +3,32 @@
 namespace App\Controller\Auth;
 
 use App\Entity\User;
+use App\Entity\Subscription;
+use App\Events\UserRegistratedEvent;
 use App\Exceptions\Contracts\MultipleArgumentExceptionInterface;
 use InvallidArgumentsException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use Throwable;
+use UserRegisteredListener;
 
 class UserRegistrationController extends AbstractController
 {
+    private $verifyEmailHelper;
+    private $mailer;
+
+    public function __construct(
+        VerifyEmailHelperInterface $helper,
+        MailerInterface $mailer
+    ) {
+        $this->verifyEmailHelper = $helper;
+        $this->mailer = $mailer;
+    }
+
     /**
      * @Route("/auth/user/registration", name="auth_user_registration")
      */
@@ -20,11 +36,18 @@ class UserRegistrationController extends AbstractController
     {
         try {
             $user = $this->create($request, $validator);
+            (new UserRegistratedEvent(
+                new UserRegisteredListener(
+                    $user,
+                    $this->verifyEmailHelper,
+                    $this->mailer
+                )
+            ))->notify();
 
             return $this->json([
                 'data' => [
-                    'email' => $user->getEmail,
-                    'name'  => $user->getName
+                    'email' => $user->getEmail(),
+                    'name'  => $user->getName()
                 ],
                 'message' => 'Success!'
             ]);
@@ -64,9 +87,49 @@ class UserRegistrationController extends AbstractController
             throw new InvallidArgumentsException(400, $errorMessages);
         }
 
+        $this->subscribeCurrencies(
+            $user,
+            $request->get('currencies'),
+            $validator
+        );
         $entityManager->persist($user);
         $entityManager->flush();
 
         return $user;
+    }
+
+    protected function subscribeCurrencies(
+        User &$user,
+        $currencies,
+        ValidatorInterface $validator
+    ) {
+        $entityManager = $this->getDoctrine()->getManager();
+
+        foreach ($currencies as $key => $cur) {
+            $data = [
+                'min' => $cur['min'],
+                'max' => $cur['max'],
+                'currency-name' => $cur['currency-name']
+            ];
+
+            $subcribtion = new Subscription($data);
+            $subcribtion->setUser($user);
+
+            $validation = $validator->validate($subcribtion);
+            $errorMessages = [];
+
+            if (count($validation) > 0) {
+                foreach ($validation as $val) {
+                    $errorMessages["{$val->getPropertyPath()}[{$key}]"] = $val->getMessage();
+                }
+
+                throw new InvallidArgumentsException(400, $errorMessages);
+            }
+
+            $user->addSubscription($subcribtion);
+            $entityManager->persist($subcribtion);
+        }
+
+        return true;
     }
 }
