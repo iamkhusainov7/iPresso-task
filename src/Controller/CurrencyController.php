@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Subscription;
 use App\Exceptions\Contracts\MultipleArgumentExceptionInterface;
-use App\Service\CheckCurrencyUpdateService;
 use InvallidArgumentsException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

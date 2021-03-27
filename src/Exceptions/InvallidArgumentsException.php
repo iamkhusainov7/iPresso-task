@@ -4,6 +4,9 @@ use App\Exceptions\Contracts\MultipleArgumentExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
+/**
+ * The exception is made in purpose to handle multiple validation errors
+ */
 class InvallidArgumentsException extends HttpException implements
     HttpExceptionInterface,
     MultipleArgumentExceptionInterface
