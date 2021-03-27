@@ -57,6 +57,11 @@ class Subscription
     private $max;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $been_notified = false;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="subscriptions")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
@@ -130,6 +135,18 @@ class Subscription
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getBeenNotified(): ?bool
+    {
+        return $this->been_notified;
+    }
+
+    public function setBeenNotified(bool $been_notified): self
+    {
+        $this->been_notified = $been_notified;
 
         return $this;
     }

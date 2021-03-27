@@ -18,6 +18,6 @@ class PlainTextEmailService extends EmailSendTemplate
 
     public function send()
     {
-        
+
     }
 }

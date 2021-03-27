@@ -22,19 +22,35 @@ class SubscriptionRepository extends ServiceEntityRepository
     // /**
     //  * @return Subscription[] Returns an array of Subscription objects
     //  */
-    /*
-    public function findByExampleField($value)
+
+    public function getAll()
     {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        $entityManager = $this->getEntityManager();
+        $query = $entityManager->createQuery(
+            "SELECT s, u.email as email
+            FROM App\Entity\Subscription s
+            INNER JOIN s.user u WHERE s.been_notified=0"
+        );
+
+        // returns an array of Product objects
+        return $query->getResult();
     }
-    */
+
+    public function updateSubscriptions(array $ids)
+    {
+        $queryBuilder = $this
+            ->createQueryBuilder('s');
+
+        $query = $queryBuilder
+            ->update('App\Entity\Subscription', 's')
+            ->set('s.been_notified', true)
+            ->where(
+                $queryBuilder->expr()->In('s.id', $ids)
+            )->getQuery();
+
+        // returns an array of Product objects
+        return $query->getResult();
+    }
 
     /*
     public function findOneBySomeField($value): ?Subscription

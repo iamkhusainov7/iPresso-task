@@ -11,7 +11,7 @@ class CurrencySource extends APIDataProvider
 {
     public function __construct()
     {
-        $this->apiLink = "http://api.nbp.pl/api";
+        $this->apiLink = $_ENV['CURRENCY_API'];
     }
 
     public function get(string $endpoint, array $param = [])
