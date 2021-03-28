@@ -24,8 +24,11 @@ class CurrencyController extends AbstractController
     /**
      * @Route("/currency/create", name="currency_creation", methods={"POST"})
      */
-    public function create(Request $request, ValidatorInterface $validator, UserInterface $user)
-    {
+    public function create(
+        Request $request,
+        ValidatorInterface $validator,
+        UserInterface $user
+    ) {
         try {
             $entityManager = $this->getDoctrine()->getManager();
             $data = [

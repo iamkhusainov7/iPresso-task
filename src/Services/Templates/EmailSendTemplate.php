@@ -6,8 +6,19 @@ use Symfony\Component\Mailer\MailerInterface;
 
 abstract class EmailSendTemplate
 {
+    /**
+     * @var string user email
+     */
     public string $userEmail;
+
+    /**
+     * @var string subject of the email
+     */
     public string $subject;
+
+    /**
+     * @var MailerInterface
+     */
     public MailerInterface $mailer;
 
     abstract function send();

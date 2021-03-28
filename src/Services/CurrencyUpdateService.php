@@ -7,6 +7,7 @@ use App\Entity\Subscription;
 use App\Events\CurrencyUpdatedEvent;
 use CurrencyUpdatedListener;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Mailer\MailerInterface;
 
 final class CheckCurrencyUpdateService
 {
@@ -15,10 +16,17 @@ final class CheckCurrencyUpdateService
         //
     }
 
+    /**
+     * Checks for updates of currencies and notifies users
+     * 
+     * @param EntityManagerInterface
+     * 
+     * @return void
+     */
     public static function check(
         EntityManagerInterface $manager,
-        $mailer
-    ) {
+        MailerInterface $mailer
+    ): void {
         $currency = new CurrencySource();
         $currencyResponse = $currency->get('/exchangerates/tables/a');
         $rates = self::normalizeRates($currencyResponse);
@@ -29,7 +37,7 @@ final class CheckCurrencyUpdateService
 
         foreach ($subscriptions as $subscription) {
             $tempKey = strtolower($subscription[0]->getCurrency());
-            
+
             if (!isset($rates[$tempKey])) {
                 continue;
             }
@@ -58,7 +66,14 @@ final class CheckCurrencyUpdateService
         $manager->updateSubscriptions($ids);
     }
 
-    protected static function normalizeRates(array $rates)
+    /**
+     * Makes a proper structure of rates to be easier retreived the currencies
+     * 
+     * @param array $rates - the array of currencies with its rate
+     * 
+     * @return array
+     */
+    protected static function normalizeRates(array $rates): array
     {
         $result = [];
 
