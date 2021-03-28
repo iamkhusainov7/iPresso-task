@@ -29,6 +29,10 @@ final class CheckCurrencyUpdateService
 
         foreach ($subscriptions as $subscription) {
             $tempKey = strtolower($subscription[0]->getCurrency());
+            
+            if (!isset($rates[$tempKey])) {
+                continue;
+            }
 
             if (
                 $rates[$tempKey] >= $subscription[0]->getMin() &&
