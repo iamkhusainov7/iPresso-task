@@ -6,14 +6,15 @@
 composer install
 ```
 * step 2: set up your .env file.
-* step 3. in the command line run:
+* step 3: set up your email configuration. It is used gmail mailing transoporter. But you can change to another one: https://symfony.com/doc/current/mailer.html#using-a-3rd-party-transport
+* step 4. in the command line run:
 ```bash
 php bin/console doctrine:migrations:migrate
 ```
-* step 4: open postman or anyother tool for making REST API queries.
-* step 5. create your first user
-* step 6: check your email to verify the user
-* step 7: the command to run the checker via command line is:
+* step 5: open postman or anyother tool for making REST API queries.
+* step 6. create your first user
+* step 7: check your email to verify the user
+* step 8: the command to run the checker via command line is:
 ```bash
 php bin/console app:check_currency
 ```
