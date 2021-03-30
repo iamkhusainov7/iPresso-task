@@ -45,7 +45,6 @@ Parameters also applies to the previous endpoint param of currency. Must have he
 |          Name | Required |  Type   | Description                                                                                                                                                           |
 | -------------:|:--------:|:-------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 |     `currency-name` | required | string  | curency code.                                                                      |
-|     `surname` | required | string  | User lastname.                                                                     |
 |     `min` | required | float  | Min value of the currency.                                                                     |
 |     `max` | required | float  | Max value of the currency                                                                     |
 |     `bday` | required | date  | Must have the format YYYY-MM-DD.                                                                     |
